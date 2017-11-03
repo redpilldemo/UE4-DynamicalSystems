@@ -1,0 +1,12 @@
+[mumble]
+local = "192.168.0.39:0"
+# server = "165.227.15.250:64738"
+server = "138.68.48.30:64738"
+
+[aws]
+access_key_id = "AKIAJGMPDAUQTXYL3LGQ"
+secret_access_key = "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"
+
+[aws.lex]
+
+[aws.poly]

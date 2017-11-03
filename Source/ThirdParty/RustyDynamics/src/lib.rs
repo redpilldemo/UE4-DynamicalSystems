@@ -4,7 +4,7 @@ extern crate uuid;
 #[macro_use]
 extern crate serde_derive;
 extern crate bincode;
-//extern crate mumblebot;
+pub extern crate mumblebot;
 
 use bincode::{serialize, deserialize, Infinite};
 
@@ -146,14 +146,16 @@ pub fn rd_netclient_vox_drop(vox: *mut Vec<u8>) {
 
 #[no_mangle]
 pub fn rd_netclient_open(local_addr: *const c_char, server_addr: *const c_char, mumble_addr: *const c_char) -> *mut Client {
-
     let local_addr = unsafe { std::ffi::CStr::from_ptr(local_addr).to_owned().into_string().unwrap() };
-    let local_addr: SocketAddr = local_addr.parse().unwrap_or(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0));
-
     let server_addr = unsafe { std::ffi::CStr::from_ptr(server_addr).to_owned().into_string().unwrap() };
-    let server_addr: SocketAddr = server_addr.parse().unwrap_or(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0));
-    
     let mumble_addr = unsafe { std::ffi::CStr::from_ptr(mumble_addr).to_owned().into_string().unwrap() };
+    netclient_open(local_addr, server_addr, mumble_addr)
+}
+
+pub fn netclient_open(local_addr: String, server_addr: String, mumble_addr: String) -> *mut Client {
+
+    let local_addr: SocketAddr = local_addr.parse().unwrap_or(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0));
+    let server_addr: SocketAddr = server_addr.parse().unwrap_or(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0));
     let mumble_addr: SocketAddr = mumble_addr.parse().unwrap_or(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0));
 
     let (kill_tx, kill_rx) = futures::sync::mpsc::channel::<()>(0);
@@ -183,12 +185,12 @@ pub fn rd_netclient_open(local_addr: *const c_char, server_addr: *const c_char, 
         let mut core = Core::new().unwrap();
         let handle = core.handle();
 
-        //let (mumble_loop, _tcp_tx, udp_tx) = mumblebot::run(local_addr, mumble_addr, vox_inp_tx.clone(), &handle);
+        let (mumble_loop, _tcp_tx, udp_tx) = mumblebot::run(local_addr, mumble_addr, vox_inp_tx.clone(), &handle);
 
-        //let mumble_say = mumblebot::say(vox_out_rx, udp_tx.clone());
+        let mumble_say = mumblebot::say(vox_out_rx, udp_tx.clone());
 
-        //mumblebot::gst::sink_main(vox_out_tx.clone());
-        //let mumble_listen = mumblebot::gst::src_main(vox_inp_rx);
+        mumblebot::gst::sink_main(vox_out_tx.clone());
+        let mumble_listen = mumblebot::gst::src_main(vox_inp_rx);
         
         let udp_socket = UdpSocket::bind(&local_addr, &handle).unwrap();
         let (tx, rx) = udp_socket.framed(LineCodec).split();
@@ -216,10 +218,10 @@ pub fn rd_netclient_open(local_addr: *const c_char, server_addr: *const c_char, 
         .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "kill_switch"));
 
         let msg_tasks = Future::join(msg_inp_task, msg_out_task);
-        //let mum_tasks = Future::join(mumble_say, mumble_listen);
+        let mum_tasks = Future::join(mumble_say, mumble_listen);
 
-        if let Err(err) = core.run(Future::join(msg_tasks, kill_switch)) {
-        //if let Err(err) = core.run(msg_tasks) {
+        if let Err(err) = core.run(Future::join4(mum_tasks, msg_tasks, mumble_loop, kill_switch)) {
+        // if let Err(err) = core.run(Future::join(mum_tasks, mumble_loop)) {
             log(format!("rd_netclient_open: {}", err));
         }
 

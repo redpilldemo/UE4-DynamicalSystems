@@ -53,26 +53,26 @@ void FDynamicalSystemsModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
-	FString VeniceBaseDir = IPluginManager::Get().FindPlugin("Venice")->GetBaseDir();
-
-	const int BufferSize =
-		65535;  // Limit according to
-				// http://msdn.microsoft.com/en-us/library/ms683188.aspx
-	TCHAR OldPath[BufferSize];
-	FGenericPlatformMisc::GetEnvironmentVariable(L"PATH", OldPath, BufferSize);
-
-	FPlatformProcess::AddDllDirectory(
-		*FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/bin")));
-	FGenericPlatformMisc::SetEnvironmentVar(
-		L"GST_PLUGIN_PATH",
-		*FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/lib")));
-
-	TArray<FString> Paths;
-	Paths.Add(FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/bin")));
-	Paths.Add(FPaths::Combine(*VeniceBaseDir, TEXT("Binaries/ThirdParty/tensorflow")));
-	Paths.Add(FString(OldPath));
-	FString Path = FString::Join(Paths, TEXT(";"));
-	FGenericPlatformMisc::SetEnvironmentVar(L"PATH", *Path);
+	auto VenicePlugin = IPluginManager::Get().FindPlugin("Venice");
+	if (VenicePlugin.IsValid()) {
+		FString VeniceBaseDir = VenicePlugin->GetBaseDir();
+		const int BufferSize =
+			65535;  // Limit according to
+					// http://msdn.microsoft.com/en-us/library/ms683188.aspx
+		TCHAR OldPath[BufferSize];
+		FGenericPlatformMisc::GetEnvironmentVariable(L"PATH", OldPath, BufferSize);
+		FPlatformProcess::AddDllDirectory(
+			*FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/bin")));
+		FGenericPlatformMisc::SetEnvironmentVar(
+			L"GST_PLUGIN_PATH",
+			*FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/lib")));
+		TArray<FString> Paths;
+		Paths.Add(FPaths::Combine(*VeniceBaseDir, TEXT("gstreamer/1.0/x86_64/bin")));
+		//Paths.Add(FPaths::Combine(*VeniceBaseDir, TEXT("Binaries/ThirdParty/tensorflow")));
+		Paths.Add(FString(OldPath));
+		FString Path = FString::Join(Paths, TEXT(";"));
+		FGenericPlatformMisc::SetEnvironmentVar(L"PATH", *Path);
+	}
 
 	// Get the base directory of this plugin
 	FString BaseDir = IPluginManager::Get().FindPlugin("DynamicalSystems")->GetBaseDir();

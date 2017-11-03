@@ -15,9 +15,24 @@ uuid = { version = "0.4", features = ["v4"] }
 serde = "1.0"
 serde_derive = "1.0"
 bincode = "0.8"
-# mumblebot = { path = "../../../../../../mumble-bot" }
+byte-slice-cast = "0.1"
+ocbaes128 = { path = "../../../../../../OCB-AES128" }
+mumblebot = { path = "../../../../../../mumble-bot" }
 # mumblebot = { git = "https://github.com/rozgo/mumble-bot", branch = "master" }
+# glib = { version = "0.3", git = "https://github.com/gtk-rs/glib" }
+# gio = { version = "0.2", git = "https://github.com/gtk-rs/gio" }
+# gstreamer = {git = "https://github.com/sdroege/gstreamer-rs.git" }
+# gstreamer-app = {git = "https://github.com/sdroege/gstreamer-rs.git" }
+# gstreamer-audio = {git = "https://github.com/sdroege/gstreamer-rs.git" }
+# gstreamer-base = {git = "https://github.com/sdroege/gstreamer-rs.git" }
+# gstreamer-player = {git = "https://github.com/sdroege/gstreamer-rs.git" }
+# gstreamer-video = {git = "https://github.com/sdroege/gstreamer-rs.git" }
 
 [lib]
 name = "RustyDynamics"
-crate-type = ["cdylib"]
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "RustyBin"
+path = "src/bin.rs"

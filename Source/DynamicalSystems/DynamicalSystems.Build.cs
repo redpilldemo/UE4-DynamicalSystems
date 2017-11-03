@@ -28,6 +28,8 @@ public class DynamicalSystems : ModuleRules
 			new string[]
 			{
 				"Core",
+                "CoreUObject",
+                "Engine",
                 "PhysX",
                 "APEX",
                 "Sockets",
@@ -45,8 +47,7 @@ public class DynamicalSystems : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-                "CoreUObject",
-                "Engine"
+
 				// ... add private dependencies that you statically link with here ...
 			}
 			);

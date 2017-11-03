@@ -4,6 +4,8 @@
 #include "NetClient.h"
 #include "NetAvatar.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(NetAvatar, Log, All);
+
 UCLASS( ClassGroup=(DynamicalSystems), meta=(BlueprintSpawnableComponent) )
 class DYNAMICALSYSTEMS_API UNetAvatar : public UActorComponent
 {

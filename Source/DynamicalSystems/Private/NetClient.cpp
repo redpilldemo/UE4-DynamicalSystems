@@ -59,7 +59,7 @@ void ANetClient::RebuildConsensus()
 void ANetClient::BeginPlay()
 {
     Super::BeginPlay();
-    
+	Uuid = FMath::RandRange(10000, 99999);
     bool bCanBindAll;
     TSharedPtr<class FInternetAddr> localIp = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, bCanBindAll);
     Local = localIp->ToString(true);
